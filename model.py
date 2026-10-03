@@ -233,8 +233,16 @@ def run_one_epoch(state, X_train, y_train, X_val, y_val, lr, patience):
     state['val_losses'].append(A[1])
     return state
 
-# Step 17 - train_batch_gd (not yet solved)
-# TODO: implement
+# Step 17 - train_batch_gd
+import numpy as np 
+def train_batch_gd(X_train, y_train, X_val, y_val, lr, epochs, patience, seed=None):
+    state=init_training_state(X_train.shape[1],seed)
+    i=0
+    while((state['stopped']!= True)and(i<epochs)):
+        state=run_one_epoch(state, X_train, y_train, X_val, y_val, lr, patience)
+        i+=1
+    return(state['best_weights'],state['train_losses'],state['val_losses'])
+    pass
 
 # Step 18 - mean_absolute_error (not yet solved)
 # TODO: implement
