@@ -289,7 +289,7 @@ def learning_curve_data(train_losses, val_losses):
     val_list = np.asarray(val_losses).tolist()
     
     # Return train_list and val_list instead of train_losses and val_losses
-    return list(range(1, n + 1)), train_list, val_list
+    return (list(range(1, n + 1)), (train_list), (val_list))
 
 # Step 23 - weights_l2_distance (not yet solved)
 # TODO: implement
