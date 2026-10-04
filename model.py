@@ -255,8 +255,23 @@ def root_mean_squared_error(y_true, y_pred):
     return float(np.sqrt((1/len(y_true))*np.sum((y_true-y_pred)**2)))
     pass
 
-# Step 20 - r_squared (not yet solved)
-# TODO: implement
+# Step 20 - r_squared
+import numpy as np
+def r_squared(y_true, y_pred):
+    # TODO: Compute the coefficient of determination R^2.
+    SST=0
+    SSR=0
+    y_true = np.asarray(y_true, dtype=float).ravel()
+    y_pred = np.asarray(y_pred, dtype=float).ravel()
+    mean= np.mean(y_true)
+    for i in range (len(y_true)):
+        SSR+=((y_true[i]-y_pred[i])**2)
+        SST+=((y_true[i]-mean)**2)  
+    if SST == 0.0:
+        return np.nan
+        
+    return 1.0 - (SSR / SST)
+    pass
 
 # Step 21 - evaluate_regression (not yet solved)
 # TODO: implement
