@@ -303,8 +303,110 @@ def create_lr_model(learning_rate=0.01, epochs=1000, patience=50, seed=0):
     return {'learning_rate':learning_rate,'epochs':epochs,'patience':patience,'seed':seed,'weights':None,'normal_weights':None,'mean':None,'std':None,'train_losses':[],'val_losses':[]}
     pass
 
-# Step 25 - fit_lr_model (not yet solved)
-# TODO: implement
+# Step 25 - fit_lr_model
+import numpy as np
+
+def compute_feature_stats(X):
+    """
+    Compute feature-wise mean and standard deviation on training data.
+    Replace zero std values with 1.0 to avoid division by zero.
+    """
+    mean = np.mean(X, axis=0)
+    std = np.std(X, axis=0)
+    std[std == 0.0] = 1.0
+    return mean, std
+
+def prepare_design_matrix(X, mean, std):
+    """
+    Standardize features using given mean and std, then PREPEND a bias column of ones.
+    Output shape: (n_samples, d + 1)
+    """
+    X_scaled = (X - mean) / std
+    ones = np.ones((len(X), 1), dtype=float)
+    return np.hstack([ones, X_scaled])  # Prepend column of ones (bias)
+
+def normal_equation(X, y):
+    """
+    Compute closed-form weights using pseudo-inverse (np.linalg.pinv) 
+    to handle singular/collinear design matrices robustly.
+    """
+    return np.linalg.pinv(X) @ y
+
+def train_batch_gd(X_train, y_train, X_val, y_val, lr, epochs, patience, seed=None):
+    """
+    Train Linear Regression using Batch Gradient Descent with early stopping.
+    """
+    if seed is not None:
+        rng = np.random.default_rng(seed)
+        weights = rng.normal(0, 0.01, size=X_train.shape[1])
+    else:
+        weights = np.zeros(X_train.shape[1], dtype=float)
+        
+    train_losses = []
+    val_losses = []
+    
+    best_weights = weights.copy()
+    best_val_loss = float('inf')
+    patience_counter = 0
+    
+    n_train = len(X_train)
+    
+    for epoch in range(epochs):
+        # Forward pass & loss
+        y_train_pred = X_train @ weights
+        train_loss = float(np.mean((y_train - y_train_pred) ** 2))
+        train_losses.append(train_loss)
+        
+        y_val_pred = X_val @ weights
+        val_loss = float(np.mean((y_val - y_val_pred) ** 2))
+        val_losses.append(val_loss)
+        
+        # Gradient computation & update
+        gradient = (-2 / n_train) * (X_train.T @ (y_train - y_train_pred))
+        weights -= lr * gradient
+        
+        # Early stopping logic
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            best_weights = weights.copy()
+            patience_counter = 0
+        else:
+            patience_counter += 1
+            if patience_counter >= patience:
+                break
+                
+    return best_weights, train_losses, val_losses
+
+def fit_lr_model(model, X_train, y_train, X_val, y_val):
+    """
+    Fit a linear regression model dict using training data only.
+    Updates and returns the model dictionary.
+    """
+    # 1. Compute feature statistics from X_train ONLY
+    mean, std = compute_feature_stats(X_train)          
+
+    # 2. Build design matrices with prepended bias column
+    X_train_design = prepare_design_matrix(X_train, mean, std)
+    X_val_design = prepare_design_matrix(X_val, mean, std)   
+
+    # 3. Train via Batch Gradient Descent using stored hyperparameters
+    best_weights, train_losses, val_losses = train_batch_gd(
+        X_train_design, y_train, X_val_design, y_val,
+        model['learning_rate'], model['epochs'], model['patience'], seed=model['seed'],
+    )
+    
+    # 4. Compute closed-form normal equation weights
+    normal_weights = normal_equation(X_train_design, y_train)
+
+    # 5. Populate model dictionary
+    model['mean'] = mean
+    model['std'] = std
+    model['weights'] = best_weights
+    model['normal_weights'] = normal_weights
+    model['train_losses'] = train_losses
+    model['val_losses'] = val_losses
+    
+    return model
 
 # Step 26 - predict_lr_model (not yet solved)
 # TODO: implement
