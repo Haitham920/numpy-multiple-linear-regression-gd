@@ -111,10 +111,6 @@ computed with the Moore–Penrose pseudo-inverse (np.linalg.pinv), which stays s
 - L2 (ridge) or L1 (lasso) regularization
 - Benchmark against sklearn.linear_model.LinearRegression on a real dataset (e.g. California Housing)
 
-## Acknowledgements
-
-Built step by step following the [Deep-ML](https://www.deep-ml.com) project track.
-
 ## Author
 
 *Haitham Maatar* — [GitHub](https://github.com/Haitham920)
