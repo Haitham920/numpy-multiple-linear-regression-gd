@@ -113,5 +113,4 @@ computed with the Moore–Penrose pseudo-inverse (np.linalg.pinv), which stays s
 
 ## Author
 
-*Haitham Maatar* — [GitHub](https://github.com/Haitham920)
-github.com
+*Haitham Maatar* 
